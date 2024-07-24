@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <canvas></canvas>
+        <script>
+            const canvas = document.querySelector("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = 800;
+            canvas.height = 600;
+
+            const gridSize = 8;
+
+            let gridWidth = canvas.width / gridSize;
+            let gridHeight = canvas.height / gridSize;
+
+            let mapHeight = 16;
+            let mapWidth = 16;
+
+            let depth = 16;
+
+            let playerX = canvas.width / 2;
+            let playerY = canvas.height / 2;
+            let playerA = 0;
+
+            let FOV = Math.PI / 4;
+
+            let mapa = [
+                ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
+                ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"],
+            ];
+
+            let map;
+            map += "################";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "#..............#";
+            map += "################";
+
+            let keys = new Set();
+
+            let speed = 2;
+
+            window.addEventListener("keydown", (e) => {
+                keys.add(e.key);
+            });
+
+            window.addEventListener("keyup", (e) => {
+                keys.delete(e.key);
+            });
+
+            function update() {
+                if (keys.has("a")) {
+                    playerX -= speed;
+                }
+                if (keys.has("d")) {
+                    playerX += speed;
+                }
+                if (keys.has("w")) {
+                    playerY -= speed;
+                }
+                if (keys.has("s")) {
+                    playerY += speed;
+                }
+
+                for (let x = 0; x < gridWidth; x++) {
+                    let rayAngle = playerA - FOV / 2 + (x / gridWidth) * FOV;
+
+                    let distanceToWall = 0;
+
+                    let hitWall = false;
+
+                    let eyeX = Math.sin(rayAngle);
+                    let eyeY = Math.cos(rayAngle);
+
+                    while (!hitWall && distanceToWall < depth) {
+                        distanceToWall += 0.1;
+                        let testX = playerX + eyeX * distanceToWall;
+                        let testY = playerY + eyeY * distanceToWall;
+
+                        if (testX < 0 || testX >= mapWidth || testY < 0 || testY >= mapHeight) {
+                            hitWall = true;
+                            distanceToWall = depth;
+                        } else {
+                            if (map[testY * mapWidth + testX] === "#") {
+                                hitWall = true;
+                            }
+                        }
+                    }
+
+                    let ceiling = gridHeight / 2 - gridHeight / distanceToWall;
+                    let floor = gridHeight - ceiling;
+
+                    for (let y = 0; y < gridHeight; y++) {
+                        if (y < ceiling) {
+
+                        }
+                    }
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.fillStyle = "#790909";
+                ctx.strokeStyle = "#000000";
+                ctx.arc(playerX, playerY, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            const FPS = 20;
+            const frameTime = 1000 / FPS;
+
+            let lastRun = 0;
+
+            function main(time) {
+                requestAnimationFrame(main);
+                draw();
+                update();
+
+                // let timeElapsed = time - lastRun;
+                // console.log(timeElapsed);
+                // lastRun = time;
+
+                // if (timeElapsed >= frameTime) {
+                //     lastRun = time - (timeElapsed % frameTime);
+                //     draw()
+                //     update();
+                // }
+            }
+
+            requestAnimationFrame(main);
+        </script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                background: #292929;
+                display: grid;
+                place-items: center;
+                height: 100vh;
+            }
+            canvas {
+                background: white;
+                border: 1px solid black;
+                box-shadow: 5px 5px 5px black;
+            }
+        </style>
+    </body>
+</html>
