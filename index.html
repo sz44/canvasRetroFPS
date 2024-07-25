@@ -88,10 +88,10 @@
 
             function update() {
                 if (keys.has("a")) {
-                    playerA -= 0.1;
+                    playerA += 0.1;
                 }
                 if (keys.has("d")) {
-                    playerA += 0.1;
+                    playerA -= 0.1;
                 }
                 if (keys.has("w")) {
                     playerX += Math.sin(playerA) * speed;
@@ -119,11 +119,11 @@
                 }
 
                 for (let x = 0; x < gridWidth; x++) {
-                    let rayAngle = playerA - FOV / 2 + (x / gridWidth) * FOV;
+                    let rayAngle = playerA + FOV / 2 - (x / gridWidth) * FOV;
 
                     let distanceToWall = 0;
-
                     let hitWall = false;
+                    let boundry = false;
 
                     let eyeX = Math.sin(rayAngle);
                     let eyeY = Math.cos(rayAngle);
@@ -133,10 +133,12 @@
                         let testX = Math.floor(playerX + eyeX * distanceToWall);
                         let testY = Math.floor(playerY + eyeY * distanceToWall);
 
+                        // Test if ray is out of bounds
                         if (testX < 0 || testX >= mapWidth || testY < 0 || testY >= mapHeight) {
                             hitWall = true;
                             distanceToWall = depth;
                         } else {
+                            // Ray is in bounds so test to see if ray cell is a wall block
                             if (map[testY * mapWidth + testX] === "#") {
                                 hitWall = true;
                             }
