@@ -17,7 +17,8 @@
 
             let run = true;
 
-            let shades = ["#000000", "#7b7d7b", "#969696", "#bfbfbf", "#ffffff"];
+            let shadesWall = ["#000000", "#7b7d7b", "#969696", "#bfbfbf", "#ffffff"];
+            let shadesFloor = ["#330000", "#660000", "#990000", "#cc0000", "#ff0000"];
 
             let gridWidth = canvas.width / gridSize;
             let gridHeight = canvas.height / gridSize;
@@ -30,29 +31,10 @@
             let depth = 16;
 
             let playerX = 8;
-            let playerY = 6;
+            let playerY = 8;
             let playerA = 0;
 
             let FOV = Math.PI / 4;
-
-            let mapa = [
-                ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "#"],
-                ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"],
-            ];
 
             let map = "";
             map += "################";
@@ -61,7 +43,7 @@
             map += "#..............#";
             map += "#..............#";
             map += "#..............#";
-            map += "#..............#";
+            map += "########.......#";
             map += "#..............#";
             map += "#..............#";
             map += "#..............#";
@@ -129,12 +111,23 @@
                     let floor = gridHeight - ceiling;
 
                     for (let y = 0; y < gridHeight; y++) {
-                        if (y < ceiling) {
-                            grid[y * gridWidth + x] = 0;
+                        if (y <= ceiling) {
+                            let div = ceiling / 5;
+                            if (y <= div * 1) {
+                                grid[y * gridWidth + x] = 8;
+                            } else if (y <= div * 2) {
+                                grid[y * gridWidth + x] = 7;
+                            } else if (y <= div * 3) {
+                                grid[y * gridWidth + x] = 6;
+                            } else if (y <= div * 4) {
+                                grid[y * gridWidth + x] = 5;
+                            } else if (y <= div * 5) {
+                                grid[y * gridWidth + x] = 0;
+                            }
                         } else if (y > ceiling && y <= floor) {
                             if (distanceToWall <= depth / 4) {
                                 grid[y * gridWidth + x] = 4;
-                            } else if(distanceToWall <= depth / 3) {
+                            } else if (distanceToWall <= depth / 3) {
                                 grid[y * gridWidth + x] = 3;
                             } else if (distanceToWall <= depth / 2) {
                                 grid[y * gridWidth + x] = 2;
@@ -142,7 +135,19 @@
                                 grid[y * gridWidth + x] = 1;
                             }
                         } else {
-                            grid[y * gridWidth + x] = 0;
+                            // let b = 1 - (y - gridWidth/2) / gridWidth/2;
+                            let div = ceiling / 5;
+                            if (y <= floor + div * 1) {
+                                grid[y * gridWidth + x] = 0;
+                            } else if (y <= floor + div * 2) {
+                                grid[y * gridWidth + x] = 5;
+                            } else if (y <= floor + div * 3) {
+                                grid[y * gridWidth + x] = 6;
+                            } else if (y <= floor + div * 4) {
+                                grid[y * gridWidth + x] = 7;
+                            } else if (y <= floor + div * 5) {
+                                grid[y * gridWidth + x] = 8;
+                            }
                         }
                     }
                 }
@@ -152,8 +157,12 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 for (let y = 0; y < gridHeight; y++) {
                     for (let x = 0; x < gridWidth; x++) {
-                        let n = grid[y * gridWidth + x]
-                        ctx.fillStyle = shades[n]
+                        let n = grid[y * gridWidth + x];
+                        if (n < shadesWall.length) {
+                            ctx.fillStyle = shadesWall[n];
+                        } else if (n < shadesWall.length + shadesFloor.length) {
+                            ctx.fillStyle = shadesFloor[n - shadesWall.length];
+                        }
                         ctx.fillRect(x * gridSize, y * gridSize, gridSize, gridSize);
                     }
                 }
@@ -173,7 +182,7 @@
 
             function main(time) {
                 requestAnimationFrame(main);
-                if ( run){
+                if (run) {
                     draw();
                     update();
                 }
