@@ -17,8 +17,28 @@
 
             let run = true;
 
-            let shadesWall = ["#000000", "#7b7d7b", "#969696", "#bfbfbf", "#ffffff"];
-            let shadesFloor = ["#330000", "#660000", "#990000", "#cc0000", "#ff0000"];
+            // let shadesWall = ["#000000", "#7b7d7b", "#969696", "#bfbfbf", "#ffffff"];
+            let shadesWall = [
+                "hsl(0,0%,20%)",
+                "hsl(0,0%,25%)",
+                "hsl(0,0%,30%)",
+                "hsl(0,0%,35%)",
+                "hsl(0,0%,40%)",
+                "hsl(0,0%,55%)",
+                "hsl(0,0%,60%)",
+            ]
+            let shadesFloor = [
+                "hsl(0,100%,10%)",
+                "hsl(0,100%,15%)",
+                "hsl(0,100%,20%)",
+                "hsl(0,100%,25%)",
+                "hsl(0,100%,30%)",
+                "hsl(0,100%,35%)",
+                "hsl(0,100%,40%)",
+                "hsl(0,100%,45%)",
+                "hsl(0,100%,50%)",
+                "hsl(0,100%,55%)",
+            ];
 
             let gridWidth = canvas.width / gridSize;
             let gridHeight = canvas.height / gridSize;
@@ -112,41 +132,70 @@
 
                     for (let y = 0; y < gridHeight; y++) {
                         if (y <= ceiling) {
-                            let div = ceiling / 5;
+                            let div = ceiling / 10;
+                            let l = shadesWall.length;
                             if (y <= div * 1) {
-                                grid[y * gridWidth + x] = 8;
+                                grid[y * gridWidth + x] = l + 9;
                             } else if (y <= div * 2) {
-                                grid[y * gridWidth + x] = 7;
+                                grid[y * gridWidth + x] = l + 8;
                             } else if (y <= div * 3) {
-                                grid[y * gridWidth + x] = 6;
+                                grid[y * gridWidth + x] = l + 7;
                             } else if (y <= div * 4) {
-                                grid[y * gridWidth + x] = 5;
+                                grid[y * gridWidth + x] = l + 6;
                             } else if (y <= div * 5) {
-                                grid[y * gridWidth + x] = 0;
+                                grid[y * gridWidth + x] = l + 5;
+                            } else if (y <= div * 6) {
+                                grid[y * gridWidth + x] = l + 4;
+                            } else if (y <= div * 7) {
+                                grid[y * gridWidth + x] = l + 3;
+                            } else if (y <= div * 8) {
+                                grid[y * gridWidth + x] = l + 2;
+                            } else if (y <= div * 9) {
+                                grid[y * gridWidth + x] = l + 1;
+                            } else if (y <= div * 10) {
+                                grid[y * gridWidth + x] = l + 0;
                             }
                         } else if (y > ceiling && y <= floor) {
-                            if (distanceToWall <= depth / 4) {
+                            // 0 1 2 3 4 5 6
+                            if (distanceToWall <= depth / 7) {
+                                grid[y * gridWidth + x] = 6;
+                            } else if (distanceToWall <= depth / 6) {
+                                grid[y * gridWidth + x] = 5;
+                            } else if (distanceToWall <= depth / 5) {
                                 grid[y * gridWidth + x] = 4;
-                            } else if (distanceToWall <= depth / 3) {
+                            } else if (distanceToWall <= depth / 4) {
                                 grid[y * gridWidth + x] = 3;
-                            } else if (distanceToWall <= depth / 2) {
+                            } else if (distanceToWall <= depth / 3) {
                                 grid[y * gridWidth + x] = 2;
-                            } else if (distanceToWall <= depth) {
+                            } else if (distanceToWall <= depth / 2) {
                                 grid[y * gridWidth + x] = 1;
+                            } else if (distanceToWall <= depth) {
+                                grid[y * gridWidth + x] = 0;
                             }
                         } else {
                             // let b = 1 - (y - gridWidth/2) / gridWidth/2;
-                            let div = ceiling / 5;
+                            let div = ceiling / 10;
+                            let l = shadesWall.length;
                             if (y <= floor + div * 1) {
-                                grid[y * gridWidth + x] = 0;
+                                grid[y * gridWidth + x] = l + 0;
                             } else if (y <= floor + div * 2) {
-                                grid[y * gridWidth + x] = 5;
+                                grid[y * gridWidth + x] = l + 1;
                             } else if (y <= floor + div * 3) {
-                                grid[y * gridWidth + x] = 6;
+                                grid[y * gridWidth + x] = l + 2;
                             } else if (y <= floor + div * 4) {
-                                grid[y * gridWidth + x] = 7;
+                                grid[y * gridWidth + x] = l + 3;
                             } else if (y <= floor + div * 5) {
-                                grid[y * gridWidth + x] = 8;
+                                grid[y * gridWidth + x] = l + 4;
+                            } else if (y <= floor + div * 6) {
+                                grid[y * gridWidth + x] = l + 5;
+                            } else if (y <= floor + div * 7) {
+                                grid[y * gridWidth + x] = l + 6;
+                            } else if (y <= floor + div * 8) {
+                                grid[y * gridWidth + x] = l + 7;
+                            } else if (y <= floor + div * 9) {
+                                grid[y * gridWidth + x] = l + 8;
+                            } else if (y <= floor + div * 10) {
+                                grid[y * gridWidth + x] = l + 9;
                             }
                         }
                     }
