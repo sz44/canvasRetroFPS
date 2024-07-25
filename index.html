@@ -13,9 +13,11 @@
             canvas.width = 800;
             canvas.height = 600;
 
-            const gridSize = 40;
+            const gridSize = 10;
 
             let run = true;
+
+            let shades = ["#000000", "#7b7d7b", "#969696", "#bfbfbf", "#ffffff"];
 
             let gridWidth = canvas.width / gridSize;
             let gridHeight = canvas.height / gridSize;
@@ -28,7 +30,7 @@
             let depth = 16;
 
             let playerX = 8;
-            let playerY = 2;
+            let playerY = 6;
             let playerA = 0;
 
             let FOV = Math.PI / 4;
@@ -72,7 +74,7 @@
 
             let keys = new Set();
 
-            let speed = 2;
+            let speed = 0.1;
 
             window.addEventListener("keydown", (e) => {
                 keys.add(e.key);
@@ -82,23 +84,20 @@
                 keys.delete(e.key);
             });
 
-            // let wall = [200,100,400,400];
-            // let wall = [200,200,400,200];
-
             function update() {
                 if (keys.has("a")) {
-                    // playerX -= speed;
                     playerA -= 0.1;
                 }
                 if (keys.has("d")) {
-                    // playerX += speed;
                     playerA += 0.1;
                 }
                 if (keys.has("w")) {
-                    // playerY -= speed;
+                    playerX += Math.sin(playerA) * speed;
+                    playerY += Math.cos(playerA) * speed;
                 }
                 if (keys.has("s")) {
-                    // playerY += speed;
+                    playerX -= Math.sin(playerA) * speed;
+                    playerY -= Math.cos(playerA) * speed;
                 }
 
                 for (let x = 0; x < gridWidth; x++) {
@@ -133,7 +132,15 @@
                         if (y < ceiling) {
                             grid[y * gridWidth + x] = 0;
                         } else if (y > ceiling && y <= floor) {
-                            grid[y * gridWidth + x] = 1;
+                            if (distanceToWall <= depth / 4) {
+                                grid[y * gridWidth + x] = 4;
+                            } else if(distanceToWall <= depth / 3) {
+                                grid[y * gridWidth + x] = 3;
+                            } else if (distanceToWall <= depth / 2) {
+                                grid[y * gridWidth + x] = 2;
+                            } else if (distanceToWall <= depth) {
+                                grid[y * gridWidth + x] = 1;
+                            }
                         } else {
                             grid[y * gridWidth + x] = 0;
                         }
@@ -145,14 +152,8 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 for (let y = 0; y < gridHeight; y++) {
                     for (let x = 0; x < gridWidth; x++) {
-                        switch (grid[y * gridWidth + x]) {
-                            case 0:
-                                ctx.fillStyle = "#ffffff";
-                                break;
-                            case 1:
-                                ctx.fillStyle = "#000000";
-                                break;
-                        }
+                        let n = grid[y * gridWidth + x]
+                        ctx.fillStyle = shades[n]
                         ctx.fillRect(x * gridSize, y * gridSize, gridSize, gridSize);
                     }
                 }
