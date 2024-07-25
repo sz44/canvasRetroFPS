@@ -51,7 +51,7 @@
             let depth = 16;
 
             let playerX = 8;
-            let playerY = 8;
+            let playerY = 2;
             let playerA = 0;
 
             let FOV = Math.PI / 4;
@@ -61,17 +61,17 @@
             map += "#..............#";
             map += "#..............#";
             map += "#..............#";
+            map += "#..........#####";
             map += "#..............#";
+            map += "###............#";
+            map += "###............#";
+            map += "###............#";
+            map += "###............#";
+            map += "###............#";
             map += "#..............#";
-            map += "########.......#";
-            map += "#..............#";
-            map += "#..............#";
-            map += "#..............#";
-            map += "#..............#";
-            map += "#..............#";
-            map += "#..............#";
-            map += "#..............#";
-            map += "#..............#";
+            map += "#.........#....#";
+            map += "#.........#....#";
+            map += "#.........#....#";
             map += "################";
 
             let keys = new Set();
@@ -96,10 +96,26 @@
                 if (keys.has("w")) {
                     playerX += Math.sin(playerA) * speed;
                     playerY += Math.cos(playerA) * speed;
+                    console.log(playerX, playerY);
+                    console.log(Math.floor(playerY) * mapWidth + Math.floor(playerX));
+                    if (map[Math.floor(playerY) * mapWidth + Math.floor(playerX)] === "#") {
+                        console.log("collision at: ", playerX, playerY);
+                        console.log(Math.floor(playerY) * mapWidth + Math.floor(playerX));
+                        playerX -= Math.sin(playerA) * speed;
+                        playerY -= Math.cos(playerA) * speed;
+                    }
                 }
                 if (keys.has("s")) {
                     playerX -= Math.sin(playerA) * speed;
                     playerY -= Math.cos(playerA) * speed;
+                    console.log(playerX, playerY);
+                    console.log(Math.floor(playerY) * mapWidth + Math.floor(playerX));
+                    if (map[Math.floor(playerY) * mapWidth + Math.floor(playerX)] === "#") {
+                        console.log("collision at: ", playerX, playerY);
+                        console.log(Math.floor(playerY) * mapWidth + Math.floor(playerX));
+                        playerX += Math.sin(playerA) * speed;
+                        playerY += Math.cos(playerA) * speed;
+                    }
                 }
 
                 for (let x = 0; x < gridWidth; x++) {
