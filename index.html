@@ -13,10 +13,12 @@
             canvas.width = 800;
             canvas.height = 600;
 
-            const gridSize = 10; let run = true;
+            const gridSize = 10;
+            let run = true;
 
             // let shadesWall = ["#000000", "#7b7d7b", "#969696", "#bfbfbf", "#ffffff"];
             let shadesWall = [
+                "hsl(0,0%,0%)",
                 "hsl(0,0%,20%)",
                 "hsl(0,0%,25%)",
                 "hsl(0,0%,30%)",
@@ -24,7 +26,7 @@
                 "hsl(0,0%,40%)",
                 "hsl(0,0%,55%)",
                 "hsl(0,0%,60%)",
-            ]
+            ];
             let shadesFloor = [
                 "hsl(0,100%,10%)",
                 "hsl(0,100%,15%)",
@@ -142,25 +144,25 @@
                             if (map[testY * mapWidth + testX] === "#") {
                                 hitWall = true;
 
-                                p = [] // distance, dot
+                                p = []; // distance, dot
 
                                 for (let tx = 0; tx < 2; tx++) {
                                     for (let ty = 0; ty < 2; ty++) {
                                         let vy = testY + ty - playerY;
                                         let vx = testX + tx - playerX;
-                                        let d = Math.sqrt(vx*vx + vy*vy); 
-                                        let dot = (eyeX * vx / d) + (eyeY * vy / d);
+                                        let d = Math.sqrt(vx * vx + vy * vy);
+                                        let dot = (eyeX * vx) / d + (eyeY * vy) / d;
                                         p.push([d, dot]);
                                     }
                                 }
 
-                                p.sort((a,b) => a[0] - b[0]);
+                                p.sort((a, b) => a[0] - b[0]);
 
                                 let bound = 0.01;
-                                if ( Math.acos(p[0][1]) < bound) {
+                                if (Math.acos(p[0][1]) < bound) {
                                     boundry = true;
                                 }
-                                if ( Math.acos(p[1][1]) < bound) {
+                                if (Math.acos(p[1][1]) < bound) {
                                     boundry = true;
                                 }
                             }
@@ -198,19 +200,19 @@
                         } else if (y > ceiling && y <= floor) {
                             // 0 1 2 3 4 5 6
                             if (distanceToWall <= depth / 7) {
-                                grid[y * gridWidth + x] = 6;
+                                grid[y * gridWidth + x] = 7;
                             } else if (distanceToWall <= depth / 6) {
-                                grid[y * gridWidth + x] = 5;
+                                grid[y * gridWidth + x] = 6;
                             } else if (distanceToWall <= depth / 5) {
-                                grid[y * gridWidth + x] = 4;
+                                grid[y * gridWidth + x] = 5;
                             } else if (distanceToWall <= depth / 4) {
-                                grid[y * gridWidth + x] = 3;
+                                grid[y * gridWidth + x] = 4;
                             } else if (distanceToWall <= depth / 3) {
-                                grid[y * gridWidth + x] = 2;
+                                grid[y * gridWidth + x] = 3;
                             } else if (distanceToWall <= depth / 2) {
-                                grid[y * gridWidth + x] = 1;
+                                grid[y * gridWidth + x] = 2;
                             } else if (distanceToWall <= depth) {
-                                grid[y * gridWidth + x] = 0;
+                                grid[y * gridWidth + x] = 1;
                             }
 
                             if (boundry) {
@@ -263,43 +265,47 @@
                 for (let y = 0; y < mapHeight; y++) {
                     for (let x = 0; x < mapWidth; x++) {
                         let n = map[y * mapWidth + x];
-                        switch(n) {
+                        switch (n) {
                             case "#":
                                 ctx.fillStyle = "#000000";
                                 break;
                             case ".":
                                 ctx.fillStyle = "#ffffff";
                                 break;
-                        } 
+                        }
                         ctx.fillRect(x * mapSize, y * mapSize, mapSize, mapSize);
 
-                        if (y === Math.floor(playerY) && x === Math.floor(playerX)) {
-                            ctx.save();
-                            // center of player square
-                            ctx.translate(x * mapSize + mapSize/2, y * mapSize + mapSize/2);
-                            ctx.rotate(-playerA);
-                            ctx.fillStyle = "#0000ff";
-                            // Math.PI = up, 0 = down, Math.PI/2 = right
-                            ctx.beginPath();
-                            ctx.arc(0,0,5,0,Math.PI);
-                            // ctx.moveTo(-5, 5);
-                            // ctx.lineTo(5, 5);
-                            // ctx.lineTo(0, -5);
-                            // ctx.lineTo(-5, -5); 
-                            ctx.fill();
-                            ctx.stroke();
-                            ctx.restore();
-                        }
-
+                        // if (y === Math.floor(playerY) && x === Math.floor(playerX)) {
+                        //     ctx.save();
+                        //     // center of player square
+                        //     ctx.translate(x * mapSize + mapSize/2, y * mapSize + mapSize/2);
+                        //     ctx.rotate(-playerA);
+                        //     ctx.fillStyle = "#0000ff";
+                        //     // Math.PI = up, 0 = down, Math.PI/2 = right
+                        //     ctx.beginPath();
+                        //     ctx.arc(0,0,5,0,Math.PI);
+                        //     // ctx.moveTo(-5, 5);
+                        //     // ctx.lineTo(5, 5);
+                        //     // ctx.lineTo(0, -5);
+                        //     // ctx.lineTo(-5, -5);
+                        //     ctx.fill();
+                        //     ctx.stroke();
+                        //     ctx.restore();
+                        // }
                     }
                 }
-                // ctx.beginPath();
-                // ctx.fillStyle = "#790909";
-                // ctx.strokeStyle = "#000000";
-                // ctx.arc(playerX, playerY, 15, 0, Math.PI * 2);
-                // ctx.rect(...wall)
-                // ctx.fill();
-                // ctx.stroke();
+                ctx.save();
+                // center of player square
+                // ctx.translate(x * mapSize + mapSize / 2, y * mapSize + mapSize / 2);
+                ctx.translate(playerX * mapSize, playerY * mapSize);
+                ctx.rotate(-playerA);
+                ctx.fillStyle = "#0000ff";
+                // Math.PI = up, 0 = down, Math.PI/2 = right
+                ctx.beginPath();
+                ctx.arc(0, 0, 5, 0, Math.PI);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
             }
 
             const FPS = 20;
