@@ -13,9 +13,7 @@
             canvas.width = 800;
             canvas.height = 600;
 
-            const gridSize = 10;
-
-            let run = true;
+            const gridSize = 10; let run = true;
 
             // let shadesWall = ["#000000", "#7b7d7b", "#969696", "#bfbfbf", "#ffffff"];
             let shadesWall = [
@@ -48,11 +46,13 @@
             let mapHeight = 16;
             let mapWidth = 16;
 
+            let mapSize = 10;
+
             let depth = 16;
 
-            let playerX = 8;
-            let playerY = 2;
-            let playerA = 0;
+            let playerX = 4;
+            let playerY = 14;
+            let playerA = Math.PI;
 
             let FOV = Math.PI / 4;
 
@@ -141,6 +141,28 @@
                             // Ray is in bounds so test to see if ray cell is a wall block
                             if (map[testY * mapWidth + testX] === "#") {
                                 hitWall = true;
+
+                                p = [] // distance, dot
+
+                                for (let tx = 0; tx < 2; tx++) {
+                                    for (let ty = 0; ty < 2; ty++) {
+                                        let vy = testY + ty - playerY;
+                                        let vx = testX + tx - playerX;
+                                        let d = Math.sqrt(vx*vx + vy*vy); 
+                                        let dot = (eyeX * vx / d) + (eyeY * vy / d);
+                                        p.push([d, dot]);
+                                    }
+                                }
+
+                                p.sort((a,b) => a[0] - b[0]);
+
+                                let bound = 0.01;
+                                if ( Math.acos(p[0][1]) < bound) {
+                                    boundry = true;
+                                }
+                                if ( Math.acos(p[1][1]) < bound) {
+                                    boundry = true;
+                                }
                             }
                         }
                     }
@@ -190,6 +212,10 @@
                             } else if (distanceToWall <= depth) {
                                 grid[y * gridWidth + x] = 0;
                             }
+
+                            if (boundry) {
+                                grid[y * gridWidth + x] = 0;
+                            }
                         } else {
                             // let b = 1 - (y - gridWidth/2) / gridWidth/2;
                             let div = ceiling / 10;
@@ -231,6 +257,40 @@
                             ctx.fillStyle = shadesFloor[n - shadesWall.length];
                         }
                         ctx.fillRect(x * gridSize, y * gridSize, gridSize, gridSize);
+                    }
+                }
+
+                for (let y = 0; y < mapHeight; y++) {
+                    for (let x = 0; x < mapWidth; x++) {
+                        let n = map[y * mapWidth + x];
+                        switch(n) {
+                            case "#":
+                                ctx.fillStyle = "#000000";
+                                break;
+                            case ".":
+                                ctx.fillStyle = "#ffffff";
+                                break;
+                        } 
+                        ctx.fillRect(x * mapSize, y * mapSize, mapSize, mapSize);
+
+                        if (y === Math.floor(playerY) && x === Math.floor(playerX)) {
+                            ctx.save();
+                            // center of player square
+                            ctx.translate(x * mapSize + mapSize/2, y * mapSize + mapSize/2);
+                            ctx.rotate(-playerA);
+                            ctx.fillStyle = "#0000ff";
+                            // Math.PI = up, 0 = down, Math.PI/2 = right
+                            ctx.beginPath();
+                            ctx.arc(0,0,5,0,Math.PI);
+                            // ctx.moveTo(-5, 5);
+                            // ctx.lineTo(5, 5);
+                            // ctx.lineTo(0, -5);
+                            // ctx.lineTo(-5, -5); 
+                            ctx.fill();
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+
                     }
                 }
                 // ctx.beginPath();
