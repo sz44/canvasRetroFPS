@@ -298,6 +298,7 @@ function draw() {
     ctx.fill();
     ctx.stroke();
     ctx.closePath();
+    // draw vision cone
     ctx.beginPath();
     ctx.fillStyle = "#ffff0077";
     ctx.arc(0, 0, 50, (Math.PI * 3) / 8, (Math.PI * 5) / 8);
@@ -336,7 +337,7 @@ function gameLoop(time) {
 }
 
 function startGame() {
-    playerX = 4;
+    playerX = 4.5;
     playerY = 14;
     playerA = Math.PI;
     run = true;
