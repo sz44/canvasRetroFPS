@@ -56,6 +56,8 @@
             let playerY = 14;
             let playerA = Math.PI;
 
+            let playerSize = 1;
+
             let FOV = Math.PI / 4;
 
             let map = "";
@@ -90,17 +92,20 @@
 
             function update() {
                 if (keys.has("a")) {
-                    playerA += 0.1;
+                    playerA += 0.04;
                 }
                 if (keys.has("d")) {
-                    playerA -= 0.1;
+                    playerA -= 0.04;
                 }
                 if (keys.has("w")) {
                     playerX += Math.sin(playerA) * speed;
                     playerY += Math.cos(playerA) * speed;
                     console.log(playerX, playerY);
                     console.log(Math.floor(playerY) * mapWidth + Math.floor(playerX));
-                    if (map[Math.floor(playerY) * mapWidth + Math.floor(playerX)] === "#") {
+                    let offSetX = Math.sin(playerA) * 0.5;
+                    let offSetY = Math.cos(playerA) * 0.5;
+
+                    if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "#") {
                         console.log("collision at: ", playerX, playerY);
                         console.log(Math.floor(playerY) * mapWidth + Math.floor(playerX));
                         playerX -= Math.sin(playerA) * speed;
@@ -112,7 +117,9 @@
                     playerY -= Math.cos(playerA) * speed;
                     console.log(playerX, playerY);
                     console.log(Math.floor(playerY) * mapWidth + Math.floor(playerX));
-                    if (map[Math.floor(playerY) * mapWidth + Math.floor(playerX)] === "#") {
+                    let offSetX = -Math.sin(playerA) * 0.5;
+                    let offSetY = -Math.cos(playerA) * 0.5;
+                    if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "#") {
                         console.log("collision at: ", playerX, playerY);
                         console.log(Math.floor(playerY) * mapWidth + Math.floor(playerX));
                         playerX += Math.sin(playerA) * speed;
@@ -250,6 +257,7 @@
 
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Draw screen: first person view
                 for (let y = 0; y < gridHeight; y++) {
                     for (let x = 0; x < gridWidth; x++) {
                         let n = grid[y * gridWidth + x];
@@ -262,6 +270,7 @@
                     }
                 }
 
+                // Draw mini map
                 for (let y = 0; y < mapHeight; y++) {
                     for (let x = 0; x < mapWidth; x++) {
                         let n = map[y * mapWidth + x];
@@ -294,6 +303,8 @@
                         // }
                     }
                 }
+                
+                // draw player on mini map
                 ctx.save();
                 // center of player square
                 // ctx.translate(x * mapSize + mapSize / 2, y * mapSize + mapSize / 2);
@@ -302,9 +313,19 @@
                 ctx.fillStyle = "#0000ff";
                 // Math.PI = up, 0 = down, Math.PI/2 = right
                 ctx.beginPath();
-                ctx.arc(0, 0, 5, 0, Math.PI);
+                ctx.arc(0,0, 5, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.stroke();
+                // ctx.rect(-mapSize/2, -mapSize/2, 10, 10);
+                // ctx.moveTo(0,0);
+                // ctx.lineTo(0, mapSize/2);
+                ctx.closePath();
+                ctx.beginPath();
+                ctx.fillStyle = "#ffff0077";
+                ctx.arc(0,0, 25, Math.PI*3/8, Math.PI*5/8);
+                ctx.lineTo(0,0);
+                ctx.fill();
+                // ctx.stroke();
                 ctx.restore();
             }
 
