@@ -3,9 +3,6 @@ const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 600;
 
-const gridSize = 10;
-let run = true;
-
 let shadesWall = [
     "hsl(0,0%,0%)",
     "hsl(0,0%,20%)",
@@ -16,23 +13,25 @@ let shadesWall = [
     "hsl(0,0%,55%)",
     "hsl(0,0%,60%)",
 ];
+
 let shadesFloor = [
-    "hsl(0,100%,10%)",
-    "hsl(0,100%,15%)",
-    "hsl(0,100%,20%)",
-    "hsl(0,100%,25%)",
-    "hsl(0,100%,30%)",
-    "hsl(0,100%,35%)",
-    "hsl(0,100%,40%)",
-    "hsl(0,100%,45%)",
-    "hsl(0,100%,50%)",
-    "hsl(0,100%,55%)",
+    "hsl(240,100%,10%)",
+    "hsl(240,100%,15%)",
+    "hsl(240,100%,20%)",
+    "hsl(240,100%,25%)",
+    "hsl(240,100%,30%)",
+    "hsl(240,100%,35%)",
+    "hsl(240,100%,40%)",
+    "hsl(240,100%,45%)",
+    "hsl(240,100%,50%)",
+    "hsl(240,100%,55%)",
 ];
 
-let gridWidth = canvas.width / gridSize;
-let gridHeight = canvas.height / gridSize;
+const screenCellSize = 10;
+let screenWidth = canvas.width / screenCellSize;
+let screenHeight = canvas.height / screenCellSize;
 
-let grid = Array(gridHeight * gridWidth).fill(0);
+let screen = Array(screenHeight * screenWidth).fill(0);
 
 let mapHeight = 16;
 let mapWidth = 16;
@@ -109,20 +108,20 @@ function update() {
         }
     }
 
-    for (let x = 0; x < gridWidth; x++) {
-        let rayAngle = playerA + FOV / 2 - (x / gridWidth) * FOV;
+    for (let x = 0; x < screenWidth; x++) {
+        let rayAngle = playerA + FOV / 2 - (x / screenWidth) * FOV;
 
         let distanceToWall = 0;
         let hitWall = false;
         let boundry = false;
 
-        let eyeX = Math.sin(rayAngle);
-        let eyeY = Math.cos(rayAngle);
+        let unitX = Math.sin(rayAngle);
+        let unitY = Math.cos(rayAngle);
 
         while (!hitWall && distanceToWall < depth) {
             distanceToWall += 0.1;
-            let testX = Math.floor(playerX + eyeX * distanceToWall);
-            let testY = Math.floor(playerY + eyeY * distanceToWall);
+            let testX = Math.floor(playerX + unitX * distanceToWall);
+            let testY = Math.floor(playerY + unitY * distanceToWall);
 
             // Test if ray is out of bounds
             if (testX < 0 || testX >= mapWidth || testY < 0 || testY >= mapHeight) {
@@ -133,14 +132,14 @@ function update() {
                 if (map[testY * mapWidth + testX] === "#") {
                     hitWall = true;
 
-                    p = []; // distance, dot
+                    p = []; // (distance, dot)
 
                     for (let tx = 0; tx < 2; tx++) {
                         for (let ty = 0; ty < 2; ty++) {
                             let vy = testY + ty - playerY;
                             let vx = testX + tx - playerX;
                             let d = Math.sqrt(vx * vx + vy * vy);
-                            let dot = (eyeX * vx) / d + (eyeY * vy) / d;
+                            let dot = (unitX * vx) / d + (unitY * vy) / d;
                             p.push([d, dot]);
                         }
                     }
@@ -158,78 +157,78 @@ function update() {
             }
         }
 
-        let ceiling = gridHeight / 2 - gridHeight / distanceToWall;
-        let floor = gridHeight - ceiling;
+        let ceiling = screenHeight / 2 - screenHeight / distanceToWall;
+        let floor = screenHeight - ceiling;
 
-        for (let y = 0; y < gridHeight; y++) {
+        for (let y = 0; y < screenHeight; y++) {
             if (y <= ceiling) {
                 let div = ceiling / 10;
                 let l = shadesWall.length;
                 if (y <= div * 1) {
-                    grid[y * gridWidth + x] = l + 9;
+                    screen[y * screenWidth + x] = l + 9;
                 } else if (y <= div * 2) {
-                    grid[y * gridWidth + x] = l + 8;
+                    screen[y * screenWidth + x] = l + 8;
                 } else if (y <= div * 3) {
-                    grid[y * gridWidth + x] = l + 7;
+                    screen[y * screenWidth + x] = l + 7;
                 } else if (y <= div * 4) {
-                    grid[y * gridWidth + x] = l + 6;
+                    screen[y * screenWidth + x] = l + 6;
                 } else if (y <= div * 5) {
-                    grid[y * gridWidth + x] = l + 5;
+                    screen[y * screenWidth + x] = l + 5;
                 } else if (y <= div * 6) {
-                    grid[y * gridWidth + x] = l + 4;
+                    screen[y * screenWidth + x] = l + 4;
                 } else if (y <= div * 7) {
-                    grid[y * gridWidth + x] = l + 3;
+                    screen[y * screenWidth + x] = l + 3;
                 } else if (y <= div * 8) {
-                    grid[y * gridWidth + x] = l + 2;
+                    screen[y * screenWidth + x] = l + 2;
                 } else if (y <= div * 9) {
-                    grid[y * gridWidth + x] = l + 1;
+                    screen[y * screenWidth + x] = l + 1;
                 } else if (y <= div * 10) {
-                    grid[y * gridWidth + x] = l + 0;
+                    screen[y * screenWidth + x] = l + 0;
                 }
             } else if (y > ceiling && y <= floor) {
                 if (distanceToWall <= depth / 7) {
-                    grid[y * gridWidth + x] = 7;
+                    screen[y * screenWidth + x] = 7;
                 } else if (distanceToWall <= depth / 6) {
-                    grid[y * gridWidth + x] = 6;
+                    screen[y * screenWidth + x] = 6;
                 } else if (distanceToWall <= depth / 5) {
-                    grid[y * gridWidth + x] = 5;
+                    screen[y * screenWidth + x] = 5;
                 } else if (distanceToWall <= depth / 4) {
-                    grid[y * gridWidth + x] = 4;
+                    screen[y * screenWidth + x] = 4;
                 } else if (distanceToWall <= depth / 3) {
-                    grid[y * gridWidth + x] = 3;
+                    screen[y * screenWidth + x] = 3;
                 } else if (distanceToWall <= depth / 2) {
-                    grid[y * gridWidth + x] = 2;
+                    screen[y * screenWidth + x] = 2;
                 } else if (distanceToWall <= depth) {
-                    grid[y * gridWidth + x] = 1;
+                    screen[y * screenWidth + x] = 1;
                 }
 
                 if (boundry) {
-                    grid[y * gridWidth + x] = 0;
+                    screen[y * screenWidth + x] = 0;
                 }
             } else {
                 // let b = 1 - (y - gridWidth/2) / gridWidth/2;
                 let div = ceiling / 10;
                 let l = shadesWall.length;
                 if (y <= floor + div * 1) {
-                    grid[y * gridWidth + x] = l + 0;
+                    screen[y * screenWidth + x] = l + 0;
                 } else if (y <= floor + div * 2) {
-                    grid[y * gridWidth + x] = l + 1;
+                    screen[y * screenWidth + x] = l + 1;
                 } else if (y <= floor + div * 3) {
-                    grid[y * gridWidth + x] = l + 2;
+                    screen[y * screenWidth + x] = l + 2;
                 } else if (y <= floor + div * 4) {
-                    grid[y * gridWidth + x] = l + 3;
+                    screen[y * screenWidth + x] = l + 3;
                 } else if (y <= floor + div * 5) {
-                    grid[y * gridWidth + x] = l + 4;
+                    screen[y * screenWidth + x] = l + 4;
                 } else if (y <= floor + div * 6) {
-                    grid[y * gridWidth + x] = l + 5;
+                    screen[y * screenWidth + x] = l + 5;
                 } else if (y <= floor + div * 7) {
-                    grid[y * gridWidth + x] = l + 6;
+                    screen[y * screenWidth + x] = l + 6;
                 } else if (y <= floor + div * 8) {
-                    grid[y * gridWidth + x] = l + 7;
+                    screen[y * screenWidth + x] = l + 7;
                 } else if (y <= floor + div * 9) {
-                    grid[y * gridWidth + x] = l + 8;
+                    screen[y * screenWidth + x] = l + 8;
                 } else if (y <= floor + div * 10) {
-                    grid[y * gridWidth + x] = l + 9;
+                    screen[y * screenWidth + x] = l + 9;
                 }
             }
         }
@@ -240,15 +239,15 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw screen: first person view
-    for (let y = 0; y < gridHeight; y++) {
-        for (let x = 0; x < gridWidth; x++) {
-            let n = grid[y * gridWidth + x];
+    for (let y = 0; y < screenHeight; y++) {
+        for (let x = 0; x < screenWidth; x++) {
+            let n = screen[y * screenWidth + x];
             if (n < shadesWall.length) {
                 ctx.fillStyle = shadesWall[n];
             } else if (n < shadesWall.length + shadesFloor.length) {
                 ctx.fillStyle = shadesFloor[n - shadesWall.length];
             }
-            ctx.fillRect(x * gridSize, y * gridSize, gridSize, gridSize);
+            ctx.fillRect(x * screenCellSize, y * screenCellSize, screenCellSize, screenCellSize);
         }
     }
 
@@ -291,8 +290,10 @@ const frameTime = 1000 / FPS;
 
 let lastRun = 0;
 
-function main(time) {
-    requestAnimationFrame(main);
+let run = true;
+
+function gameLoop(time) {
+    requestAnimationFrame(gameLoop);
     if (run) {
         draw();
         update();
@@ -309,4 +310,4 @@ function main(time) {
     // }
 }
 
-requestAnimationFrame(main);
+requestAnimationFrame(gameLoop);
