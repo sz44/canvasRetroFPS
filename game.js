@@ -1,3 +1,17 @@
+const endMenu  = document.querySelector("#endMenu");
+const submit = document.querySelector(".menu #submit");
+const start = document.querySelector("#start");
+const retry = document.querySelector(".menu #retry");
+
+retry.onclick = (e) => {
+    startGame();
+};
+
+start.onclick = (e) => {
+    start.classList.toggle("hide");
+    startGame();
+}
+
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = 800;
@@ -27,6 +41,8 @@ let shadesFloor = [
     "hsl(240,100%,55%)",
 ];
 
+let shadeOrb = "#ffff00";
+
 const screenCellSize = 10;
 let screenWidth = canvas.width / screenCellSize;
 let screenHeight = canvas.height / screenCellSize;
@@ -44,27 +60,19 @@ let playerX = 4;
 let playerY = 14;
 let playerA = Math.PI;
 
+let enemyX = 4;
+let enemyY = 1;
+let enemySpeed = 0.05;
+
+let bulletSpeed = 0.01;
+let bulletZ = 0;
+// let bulletSize = 10;
+
+let orbReached = false;
+
 let playerSize = 1;
 
 let FOV = Math.PI / 4;
-
-let map = "";
-map += "################";
-map += "#..............#";
-map += "#..............#";
-map += "#..............#";
-map += "#..........#####";
-map += "#..............#";
-map += "###............#";
-map += "###............#";
-map += "###............#";
-map += "###............#";
-map += "###............#";
-map += "#..............#";
-map += "#.........#....#";
-map += "#.........#....#";
-map += "#.........#....#";
-map += "################";
 
 let keys = new Set();
 
@@ -90,10 +98,14 @@ function update() {
         playerY += Math.cos(playerA) * speed;
         let offSetX = Math.sin(playerA) * 0.5;
         let offSetY = Math.cos(playerA) * 0.5;
-        
+
         if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "#") {
             playerX -= Math.sin(playerA) * speed;
             playerY -= Math.cos(playerA) * speed;
+        }
+
+        if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "o") {
+            orbReached = true;
         }
     }
     if (keys.has("s")) {
@@ -114,6 +126,7 @@ function update() {
         let distanceToWall = 0;
         let hitWall = false;
         let boundry = false;
+        let orb = false;
 
         let unitX = Math.sin(rayAngle);
         let unitY = Math.cos(rayAngle);
@@ -153,6 +166,9 @@ function update() {
                     if (Math.acos(p[1][1]) < bound) {
                         boundry = true;
                     }
+                } else if (map[testY * mapWidth + testX] === "o") {
+                    hitWall = true;
+                    orb = true;
                 }
             }
         }
@@ -161,9 +177,10 @@ function update() {
         let floor = screenHeight - ceiling;
 
         for (let y = 0; y < screenHeight; y++) {
+            let l = shadesWall.length;
+            let m = shadesFloor.length;
             if (y <= ceiling) {
                 let div = ceiling / 10;
-                let l = shadesWall.length;
                 if (y <= div * 1) {
                     screen[y * screenWidth + x] = l + 9;
                 } else if (y <= div * 2) {
@@ -205,10 +222,12 @@ function update() {
                 if (boundry) {
                     screen[y * screenWidth + x] = 0;
                 }
+                if (orb) {
+                    screen[y * screenWidth + x] = l + m;
+                }
             } else {
                 // let b = 1 - (y - gridWidth/2) / gridWidth/2;
                 let div = ceiling / 10;
-                let l = shadesWall.length;
                 if (y <= floor + div * 1) {
                     screen[y * screenWidth + x] = l + 0;
                 } else if (y <= floor + div * 2) {
@@ -246,6 +265,8 @@ function draw() {
                 ctx.fillStyle = shadesWall[n];
             } else if (n < shadesWall.length + shadesFloor.length) {
                 ctx.fillStyle = shadesFloor[n - shadesWall.length];
+            } else {
+                ctx.fillStyle = shadeOrb;
             }
             ctx.fillRect(x * screenCellSize, y * screenCellSize, screenCellSize, screenCellSize);
         }
@@ -293,10 +314,14 @@ let lastRun = 0;
 let run = true;
 
 function gameLoop(time) {
-    requestAnimationFrame(gameLoop);
+    if (orbReached) {
+        endMenu.classList.toggle("hide");
+        run = false;
+    }
     if (run) {
         draw();
         update();
+        requestAnimationFrame(gameLoop);
     }
 
     // let timeElapsed = time - lastRun;
@@ -310,4 +335,12 @@ function gameLoop(time) {
     // }
 }
 
-requestAnimationFrame(gameLoop);
+function startGame() {
+    playerX = 4;
+    playerY = 14;
+    playerA = Math.PI;
+    run = true;
+    orbReached = false;
+    endMenu.classList.add("hide");
+    requestAnimationFrame(gameLoop);
+}

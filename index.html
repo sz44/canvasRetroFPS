@@ -6,13 +6,23 @@
         <title>Document</title>
     </head>
     <body>
-        <h1>Retro FPS</h1>
-        <canvas></canvas>
+        <h1>Retro 3D maze</h1>
         <div>
+            <p>
+                Find the light to win!
+            </p>
             <p>
                 Controls: w,a,s,d
             </p>
         </div>
+        <canvas></canvas>
+        <button class="menu" id="start">START</button>
+        <div class="menu hide" id="endMenu">
+            <input type="text" name="" id="" placeholder="name">
+            <button id="submit">SUBMIT SCORE</button>
+            <button id="retry">TRY AGAIN</button>
+        </div>
+        <script src="maps.js"></script>
         <script src="game.js"></script>
         <style>
             * {
@@ -29,6 +39,29 @@
                 /* place-items: center; */
                 /* height: 100vh; */
             }
+            button {
+                padding: 1rem;
+                background: rgb(255, 255, 255);
+                border: 3px solid rgb(9, 51, 9);
+                border-radius: 25px;
+                font-size: larger;
+                font-weight: 800;
+            }
+            input[type=text] {
+                padding: 1rem;
+                border: 1px solid black;
+            }
+            .menu {
+                padding: 1rem;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .hide {
+               display: none; 
+            }
+
             h1 {
                 margin: 1rem;
             }
@@ -37,7 +70,7 @@
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                background: white;
+                background: rgb(33, 35, 153);
                 border: 1px solid black;
                 box-shadow: 5px 5px 5px black;
             }
