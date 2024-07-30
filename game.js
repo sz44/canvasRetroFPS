@@ -308,7 +308,7 @@ function draw() {
     ctx.restore();
 }
 
-const FPS = 20;
+const FPS = 30;
 const frameTime = 1000 / FPS;
 
 let lastRun = 0;
@@ -317,15 +317,19 @@ let run = true;
 
 function gameLoop(time) {
     if (orbReached) {
-
         endMenu.classList.toggle("hide");
         run = false;
         timer.stop();
     }
     if (run) {
-        draw();
-        update();
+        let timeElapsed = time - lastRun
         requestAnimationFrame(gameLoop);
+        draw();
+        // update at specified fps
+        if (timeElapsed >= frameTime) {
+            update();
+            lastRun = time - (timeElapsed % frameTime);
+        }
     }
 
     // let timeElapsed = time - lastRun;
@@ -366,6 +370,7 @@ function startGame() {
     run = true;
     orbReached = false;
     endMenu.classList.add("hide");
+    lastRun = document.timeline.currentTime;
     startTimer();
     requestAnimationFrame(gameLoop);
 }
