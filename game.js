@@ -319,7 +319,7 @@ function gameLoop(time) {
     if (orbReached) {
         endMenu.classList.toggle("hide");
         run = false;
-        timer.stop();
+        stopTimer();
     }
     if (run) {
         let timeElapsed = time - lastRun
@@ -331,38 +331,23 @@ function gameLoop(time) {
             lastRun = time - (timeElapsed % frameTime);
         }
     }
-
-    // let timeElapsed = time - lastRun;
-    // console.log(timeElapsed);
-    // lastRun = time;
-
-    // if (timeElapsed >= frameTime) {
-    //     lastRun = time - (timeElapsed % frameTime);
-    //     draw()
-    //     update();
-    // }
 }
 
 let startTime = 0;
-let time = 0;
-
 let i;
 
-
 function startTimer() {
-    // startTime = Date.now();
-    // i = setInterval(() => {
-    //     let delta = Date.now() - startTime;
-    //     time += Math.floor(delta/1000);
-    //     timeDisplay.textContent = time;
-    // }, 1000);
-    timer.reset();
-    timer.start();
-    setInterval(() => {
-        const timeInSeconds = Math.round(timer.getTime() / 1000);
+    startTime = Date.now();
+    i = setInterval(() => {
+        const timeInSeconds = Math.round((Date.now() - startTime) / 1000);
         timeDisplay.innerHTML = timeInSeconds;
     }, 100);
 }
+
+function stopTimer() {
+    clearInterval(i);
+}
+
 function startGame() {
     playerX = 4.5;
     playerY = 14;
@@ -374,64 +359,3 @@ function startGame() {
     startTimer();
     requestAnimationFrame(gameLoop);
 }
-
-class Timer {
-    constructor() {
-        this.isRunning = false;
-        this.startTime = 0;
-        this.overallTime = 0;
-    }
-
-    _getTimeElapsedSinceLastStart() {
-        if (!this.startTime) {
-            return 0;
-        }
-
-        return Date.now() - this.startTime;
-    }
-
-    start() {
-        if (this.isRunning) {
-            return console.error("Timer is already running");
-        }
-
-        this.isRunning = true;
-
-        this.startTime = Date.now();
-    }
-
-    stop() {
-        if (!this.isRunning) {
-            return console.error("Timer is already stopped");
-        }
-
-        this.isRunning = false;
-
-        this.overallTime = this.overallTime + this._getTimeElapsedSinceLastStart();
-    }
-
-    reset() {
-        this.overallTime = 0;
-
-        if (this.isRunning) {
-            this.startTime = Date.now();
-            return;
-        }
-
-        this.startTime = 0;
-    }
-
-    getTime() {
-        if (!this.startTime) {
-            return 0;
-        }
-
-        if (this.isRunning) {
-            return this.overallTime + this._getTimeElapsedSinceLastStart();
-        }
-
-        return this.overallTime;
-    }
-}
-
-const timer = new Timer();
