@@ -1,7 +1,8 @@
-const endMenu  = document.querySelector("#endMenu");
+const endMenu = document.querySelector("#endMenu");
 const submit = document.querySelector(".menu #submit");
 const start = document.querySelector("#start");
 const retry = document.querySelector(".menu #retry");
+const timeDisplay = document.querySelector("#time");
 
 retry.onclick = (e) => {
     startGame();
@@ -10,7 +11,7 @@ retry.onclick = (e) => {
 start.onclick = (e) => {
     start.classList.toggle("hide");
     startGame();
-}
+};
 
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
@@ -316,8 +317,10 @@ let run = true;
 
 function gameLoop(time) {
     if (orbReached) {
+
         endMenu.classList.toggle("hide");
         run = false;
+        timer.stop();
     }
     if (run) {
         draw();
@@ -336,6 +339,26 @@ function gameLoop(time) {
     // }
 }
 
+let startTime = 0;
+let time = 0;
+
+let i;
+
+
+function startTimer() {
+    // startTime = Date.now();
+    // i = setInterval(() => {
+    //     let delta = Date.now() - startTime;
+    //     time += Math.floor(delta/1000);
+    //     timeDisplay.textContent = time;
+    // }, 1000);
+    timer.reset();
+    timer.start();
+    setInterval(() => {
+        const timeInSeconds = Math.round(timer.getTime() / 1000);
+        timeDisplay.innerHTML = timeInSeconds;
+    }, 100);
+}
 function startGame() {
     playerX = 4.5;
     playerY = 14;
@@ -343,5 +366,67 @@ function startGame() {
     run = true;
     orbReached = false;
     endMenu.classList.add("hide");
+    startTimer();
     requestAnimationFrame(gameLoop);
 }
+
+class Timer {
+    constructor() {
+        this.isRunning = false;
+        this.startTime = 0;
+        this.overallTime = 0;
+    }
+
+    _getTimeElapsedSinceLastStart() {
+        if (!this.startTime) {
+            return 0;
+        }
+
+        return Date.now() - this.startTime;
+    }
+
+    start() {
+        if (this.isRunning) {
+            return console.error("Timer is already running");
+        }
+
+        this.isRunning = true;
+
+        this.startTime = Date.now();
+    }
+
+    stop() {
+        if (!this.isRunning) {
+            return console.error("Timer is already stopped");
+        }
+
+        this.isRunning = false;
+
+        this.overallTime = this.overallTime + this._getTimeElapsedSinceLastStart();
+    }
+
+    reset() {
+        this.overallTime = 0;
+
+        if (this.isRunning) {
+            this.startTime = Date.now();
+            return;
+        }
+
+        this.startTime = 0;
+    }
+
+    getTime() {
+        if (!this.startTime) {
+            return 0;
+        }
+
+        if (this.isRunning) {
+            return this.overallTime + this._getTimeElapsedSinceLastStart();
+        }
+
+        return this.overallTime;
+    }
+}
+
+const timer = new Timer();
