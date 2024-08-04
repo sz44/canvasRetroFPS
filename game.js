@@ -18,32 +18,6 @@ const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 600;
 
-let shadesWall = [
-    "hsl(0,0%,0%)",
-    "hsl(0,0%,20%)",
-    "hsl(0,0%,25%)",
-    "hsl(0,0%,30%)",
-    "hsl(0,0%,35%)",
-    "hsl(0,0%,40%)",
-    "hsl(0,0%,55%)",
-    "hsl(0,0%,60%)",
-];
-
-let shadesFloor = [
-    "hsl(240,100%,10%)",
-    "hsl(240,100%,15%)",
-    "hsl(240,100%,20%)",
-    "hsl(240,100%,25%)",
-    "hsl(240,100%,30%)",
-    "hsl(240,100%,35%)",
-    "hsl(240,100%,40%)",
-    "hsl(240,100%,45%)",
-    "hsl(240,100%,50%)",
-    "hsl(240,100%,55%)",
-];
-
-let shadeOrb = "#ffff00";
-
 const screenCellSize = 10;
 let screenWidth = canvas.width / screenCellSize;
 let screenHeight = canvas.height / screenCellSize;
@@ -53,13 +27,13 @@ let screen = Array(screenHeight * screenWidth).fill(0);
 let mapHeight = 16;
 let mapWidth = 16;
 
-let mapSize = 10;
+let mapTileSize = 10;
 
 let depth = 16;
 
 let playerX = 4;
-let playerY = 14;
-let playerA = Math.PI;
+let playerY = 1;
+let playerA = 0;
 
 let enemyX = 4;
 let enemyY = 1;
@@ -89,20 +63,20 @@ window.addEventListener("keyup", (e) => {
 
 function update() {
     if (keys.has("a")) {
-        playerA += 0.04;
-    }
-    if (keys.has("d")) {
         playerA -= 0.04;
     }
+    if (keys.has("d")) {
+        playerA += 0.04;
+    }
     if (keys.has("w")) {
-        playerX += Math.sin(playerA) * speed;
-        playerY += Math.cos(playerA) * speed;
-        let offSetX = Math.sin(playerA) * 0.5;
-        let offSetY = Math.cos(playerA) * 0.5;
+        playerX += Math.cos(playerA) * speed;
+        playerY += Math.sin(playerA) * speed;
+        let offSetX = Math.cos(playerA) * 0.5;
+        let offSetY = Math.sin(playerA) * 0.5;
 
         if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "#") {
-            playerX -= Math.sin(playerA) * speed;
-            playerY -= Math.cos(playerA) * speed;
+            playerX -= Math.cos(playerA) * speed;
+            playerY -= Math.sin(playerA) * speed;
         }
 
         if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "o") {
@@ -110,48 +84,54 @@ function update() {
         }
     }
     if (keys.has("s")) {
-        playerX -= Math.sin(playerA) * speed;
-        playerY -= Math.cos(playerA) * speed;
-        let offSetX = -Math.sin(playerA) * 0.5;
-        let offSetY = -Math.cos(playerA) * 0.5;
+        playerX -= Math.cos(playerA) * speed;
+        playerY -= Math.sin(playerA) * speed;
+        let offSetX = -Math.cos(playerA) * 0.5;
+        let offSetY = -Math.sin(playerA) * 0.5;
 
         if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "#") {
-            playerX += Math.sin(playerA) * speed;
-            playerY += Math.cos(playerA) * speed;
+            playerX += Math.cos(playerA) * speed;
+            playerY += Math.sin(playerA) * speed;
         }
     }
+    if (keys.has("q")) {
+        
+    }
+
 
     for (let x = 0; x < screenWidth; x++) {
-        let rayAngle = playerA + FOV / 2 - (x / screenWidth) * FOV;
+        let rayAngle = playerA - FOV / 2 + (x / screenWidth) * FOV;
+        // debugger
 
         let distanceToWall = 0;
         let hitWall = false;
         let boundry = false;
         let orb = false;
 
-        let unitX = Math.sin(rayAngle);
-        let unitY = Math.cos(rayAngle);
+        let unitX = Math.cos(rayAngle);
+        let unitY = Math.sin(rayAngle);
 
         while (!hitWall && distanceToWall < depth) {
             distanceToWall += 0.1;
-            let testX = Math.floor(playerX + unitX * distanceToWall);
-            let testY = Math.floor(playerY + unitY * distanceToWall);
+            let rayX = Math.floor(playerX + unitX * distanceToWall);
+            let rayY = Math.floor(playerY + unitY * distanceToWall);
 
             // Test if ray is out of bounds
-            if (testX < 0 || testX >= mapWidth || testY < 0 || testY >= mapHeight) {
+            if (rayX < 0 || rayX >= mapWidth || rayY < 0 || rayY >= mapHeight) {
                 hitWall = true;
                 distanceToWall = depth;
+                // debugger
             } else {
                 // Ray is in bounds so test to see if ray cell is a wall block
-                if (map[testY * mapWidth + testX] === "#") {
+                if (map[rayY * mapWidth + rayX] === "#") {
                     hitWall = true;
 
                     p = []; // (distance, dot)
 
                     for (let tx = 0; tx < 2; tx++) {
                         for (let ty = 0; ty < 2; ty++) {
-                            let vy = testY + ty - playerY;
-                            let vx = testX + tx - playerX;
+                            let vy = rayY + ty - playerY;
+                            let vx = rayX + tx - playerX;
                             let d = Math.sqrt(vx * vx + vy * vy);
                             let dot = (unitX * vx) / d + (unitY * vy) / d;
                             p.push([d, dot]);
@@ -167,7 +147,9 @@ function update() {
                     if (Math.acos(p[1][1]) < bound) {
                         boundry = true;
                     }
-                } else if (map[testY * mapWidth + testX] === "o") {
+                    // debugger
+
+                } else if (map[rayY * mapWidth + rayX] === "o") {
                     hitWall = true;
                     orb = true;
                 }
@@ -180,75 +162,76 @@ function update() {
         for (let y = 0; y < screenHeight; y++) {
             let l = shadesWall.length;
             let m = shadesFloor.length;
+            let loc = y * screenWidth + x;
             if (y <= ceiling) {
                 let div = ceiling / 10;
                 if (y <= div * 1) {
-                    screen[y * screenWidth + x] = l + 9;
+                    screen[loc] = l + 9;
                 } else if (y <= div * 2) {
-                    screen[y * screenWidth + x] = l + 8;
+                    screen[loc] = l + 8;
                 } else if (y <= div * 3) {
-                    screen[y * screenWidth + x] = l + 7;
+                    screen[loc] = l + 7;
                 } else if (y <= div * 4) {
-                    screen[y * screenWidth + x] = l + 6;
+                    screen[loc] = l + 6;
                 } else if (y <= div * 5) {
-                    screen[y * screenWidth + x] = l + 5;
+                    screen[loc] = l + 5;
                 } else if (y <= div * 6) {
-                    screen[y * screenWidth + x] = l + 4;
+                    screen[loc] = l + 4;
                 } else if (y <= div * 7) {
-                    screen[y * screenWidth + x] = l + 3;
+                    screen[loc] = l + 3;
                 } else if (y <= div * 8) {
-                    screen[y * screenWidth + x] = l + 2;
+                    screen[loc] = l + 2;
                 } else if (y <= div * 9) {
-                    screen[y * screenWidth + x] = l + 1;
+                    screen[loc] = l + 1;
                 } else if (y <= div * 10) {
-                    screen[y * screenWidth + x] = l + 0;
+                    screen[loc] = l + 0;
                 }
             } else if (y > ceiling && y <= floor) {
                 if (distanceToWall <= depth / 7) {
-                    screen[y * screenWidth + x] = 7;
+                    screen[loc] = 7;
                 } else if (distanceToWall <= depth / 6) {
-                    screen[y * screenWidth + x] = 6;
+                    screen[loc] = 6;
                 } else if (distanceToWall <= depth / 5) {
-                    screen[y * screenWidth + x] = 5;
+                    screen[loc] = 5;
                 } else if (distanceToWall <= depth / 4) {
-                    screen[y * screenWidth + x] = 4;
+                    screen[loc] = 4;
                 } else if (distanceToWall <= depth / 3) {
-                    screen[y * screenWidth + x] = 3;
+                    screen[loc] = 3;
                 } else if (distanceToWall <= depth / 2) {
-                    screen[y * screenWidth + x] = 2;
+                    screen[loc] = 2;
                 } else if (distanceToWall <= depth) {
-                    screen[y * screenWidth + x] = 1;
+                    screen[loc] = 1;
                 }
 
                 if (boundry) {
-                    screen[y * screenWidth + x] = 0;
+                    screen[loc] = 0;
                 }
                 if (orb) {
-                    screen[y * screenWidth + x] = l + m;
+                    screen[loc] = l + m;
                 }
             } else {
                 // let b = 1 - (y - gridWidth/2) / gridWidth/2;
                 let div = ceiling / 10;
                 if (y <= floor + div * 1) {
-                    screen[y * screenWidth + x] = l + 0;
+                    screen[loc] = l + 0;
                 } else if (y <= floor + div * 2) {
-                    screen[y * screenWidth + x] = l + 1;
+                    screen[loc] = l + 1;
                 } else if (y <= floor + div * 3) {
-                    screen[y * screenWidth + x] = l + 2;
+                    screen[loc] = l + 2;
                 } else if (y <= floor + div * 4) {
-                    screen[y * screenWidth + x] = l + 3;
+                    screen[loc] = l + 3;
                 } else if (y <= floor + div * 5) {
-                    screen[y * screenWidth + x] = l + 4;
+                    screen[loc] = l + 4;
                 } else if (y <= floor + div * 6) {
-                    screen[y * screenWidth + x] = l + 5;
+                    screen[loc] = l + 5;
                 } else if (y <= floor + div * 7) {
-                    screen[y * screenWidth + x] = l + 6;
+                    screen[loc] = l + 6;
                 } else if (y <= floor + div * 8) {
-                    screen[y * screenWidth + x] = l + 7;
+                    screen[loc] = l + 7;
                 } else if (y <= floor + div * 9) {
-                    screen[y * screenWidth + x] = l + 8;
+                    screen[loc] = l + 8;
                 } else if (y <= floor + div * 10) {
-                    screen[y * screenWidth + x] = l + 9;
+                    screen[loc] = l + 9;
                 }
             }
         }
@@ -285,14 +268,14 @@ function draw() {
                     ctx.fillStyle = "#ffffff";
                     break;
             }
-            ctx.fillRect(x * mapSize, y * mapSize, mapSize, mapSize);
+            ctx.fillRect(x * mapTileSize, y * mapTileSize, mapTileSize, mapTileSize);
         }
     }
 
     // draw player on mini map
     ctx.save();
-    ctx.translate(playerX * mapSize, playerY * mapSize);
-    ctx.rotate(-playerA);
+    ctx.translate(playerX * mapTileSize, playerY * mapTileSize);
+    ctx.rotate(playerA);
     ctx.fillStyle = "#0000ff";
     ctx.beginPath();
     ctx.arc(0, 0, 5, 0, Math.PI * 2);
@@ -302,7 +285,8 @@ function draw() {
     // draw vision cone
     ctx.beginPath();
     ctx.fillStyle = "#ffff0077";
-    ctx.arc(0, 0, 50, (Math.PI * 3) / 8, (Math.PI * 5) / 8);
+    // ctx.arc(0, 0, 50, (Math.PI * 3) / 8, (Math.PI * 5) / 8);
+    ctx.arc(0,0,50,-FOV/2,FOV/2);
     ctx.lineTo(0, 0);
     ctx.fill();
     ctx.restore();
@@ -349,9 +333,9 @@ function stopTimer() {
 }
 
 function startGame() {
-    playerX = 4.5;
-    playerY = 14;
-    playerA = Math.PI;
+    playerX = 5.5;
+    playerY = 7.5;
+    playerA = 0;
     run = true;
     orbReached = false;
     endMenu.classList.add("hide");
