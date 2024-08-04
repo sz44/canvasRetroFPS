@@ -95,9 +95,27 @@ function update() {
         }
     }
     if (keys.has("q")) {
-        
-    }
+        playerX -= Math.cos(playerA + Math.PI/2) * speed;
+        playerY -= Math.sin(playerA + Math.PI/2) * speed;
+        let offSetX = -Math.cos(playerA + Math.PI/2) * 0.5;
+        let offSetY = -Math.sin(playerA + Math.PI/2) * 0.5;
 
+        if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "#") {
+            playerX += Math.cos(playerA + Math.PI/2) * speed;
+            playerY += Math.sin(playerA + Math.PI/2) * speed;
+        }
+    }
+    if (keys.has("e")) {
+        playerX += Math.cos(playerA + Math.PI/2) * speed;
+        playerY += Math.sin(playerA + Math.PI/2) * speed;
+        let offSetX = Math.cos(playerA + Math.PI/2) * 0.5;
+        let offSetY = Math.sin(playerA + Math.PI/2) * 0.5;
+
+        if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "#") {
+            playerX -= Math.cos(playerA + Math.PI/2) * speed;
+            playerY -= Math.sin(playerA + Math.PI/2) * speed;
+        }
+    }
 
     for (let x = 0; x < screenWidth; x++) {
         let rayAngle = playerA - FOV / 2 + (x / screenWidth) * FOV;
