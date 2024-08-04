@@ -18,7 +18,8 @@ const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 600;
 
-const screenCellSize = 10;
+const screenCellSize = 5;
+
 let screenWidth = canvas.width / screenCellSize;
 let screenHeight = canvas.height / screenCellSize;
 
@@ -26,6 +27,8 @@ let screen = Array(screenHeight * screenWidth).fill(0);
 
 let mapHeight = 16;
 let mapWidth = 16;
+
+let map = map1;
 
 let mapTileSize = 10;
 
@@ -95,28 +98,27 @@ function update() {
         }
     }
     if (keys.has("q")) {
-        playerX -= Math.cos(playerA + Math.PI/2) * speed;
-        playerY -= Math.sin(playerA + Math.PI/2) * speed;
-        let offSetX = -Math.cos(playerA + Math.PI/2) * 0.5;
-        let offSetY = -Math.sin(playerA + Math.PI/2) * 0.5;
+        playerX += Math.sin(playerA) * speed;
+        playerY -= Math.cos(playerA) * speed;
+        let offSetX = +Math.sin(playerA) * 0.5;
+        let offSetY = -Math.cos(playerA) * 0.5;
 
         if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "#") {
-            playerX += Math.cos(playerA + Math.PI/2) * speed;
-            playerY += Math.sin(playerA + Math.PI/2) * speed;
+            playerX -= Math.sin(playerA) * speed;
+            playerY += Math.cos(playerA) * speed;
         }
     }
     if (keys.has("e")) {
-        playerX += Math.cos(playerA + Math.PI/2) * speed;
-        playerY += Math.sin(playerA + Math.PI/2) * speed;
-        let offSetX = Math.cos(playerA + Math.PI/2) * 0.5;
-        let offSetY = Math.sin(playerA + Math.PI/2) * 0.5;
+        playerX -= Math.sin(playerA) * speed;
+        playerY += Math.cos(playerA) * speed;
+        let offSetX = -Math.sin(playerA) * 0.5;
+        let offSetY = +Math.cos(playerA) * 0.5;
 
         if (map[Math.floor(playerY + offSetY) * mapWidth + Math.floor(playerX + offSetX)] === "#") {
-            playerX -= Math.cos(playerA + Math.PI/2) * speed;
-            playerY -= Math.sin(playerA + Math.PI/2) * speed;
+            playerX += Math.sin(playerA) * speed;
+            playerY -= Math.cos(playerA) * speed;
         }
     }
-
     for (let x = 0; x < screenWidth; x++) {
         let rayAngle = playerA - FOV / 2 + (x / screenWidth) * FOV;
         // debugger
@@ -152,13 +154,14 @@ function update() {
                             let vx = rayX + tx - playerX;
                             let d = Math.sqrt(vx * vx + vy * vy);
                             let dot = (unitX * vx) / d + (unitY * vy) / d;
+                            let dot2 = (unitX * vx) / d + (unitY * vy) / d;
                             p.push([d, dot]);
                         }
                     }
 
                     p.sort((a, b) => a[0] - b[0]);
 
-                    let bound = 0.01;
+                    let bound = 0.005;
                     if (Math.acos(p[0][1]) < bound) {
                         boundry = true;
                     }
@@ -166,7 +169,6 @@ function update() {
                         boundry = true;
                     }
                     // debugger
-
                 } else if (map[rayY * mapWidth + rayX] === "o") {
                     hitWall = true;
                     orb = true;
@@ -304,7 +306,7 @@ function draw() {
     ctx.beginPath();
     ctx.fillStyle = "#ffff0077";
     // ctx.arc(0, 0, 50, (Math.PI * 3) / 8, (Math.PI * 5) / 8);
-    ctx.arc(0,0,50,-FOV/2,FOV/2);
+    ctx.arc(0, 0, 50, -FOV / 2, FOV / 2);
     ctx.lineTo(0, 0);
     ctx.fill();
     ctx.restore();
@@ -324,7 +326,7 @@ function gameLoop(time) {
         stopTimer();
     }
     if (run) {
-        let timeElapsed = time - lastRun
+        let timeElapsed = time - lastRun;
         requestAnimationFrame(gameLoop);
         draw();
         // update at specified fps
@@ -351,7 +353,7 @@ function stopTimer() {
 }
 
 function startGame() {
-    playerX = 5.5;
+    playerX = 7;
     playerY = 14;
     playerA = 0;
     run = true;
