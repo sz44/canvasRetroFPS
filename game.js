@@ -352,7 +352,7 @@ function stopTimer() {
 
 function startGame() {
     playerX = 5.5;
-    playerY = 7.5;
+    playerY = 14;
     playerA = 0;
     run = true;
     orbReached = false;
